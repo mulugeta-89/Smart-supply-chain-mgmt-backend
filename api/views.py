@@ -7,6 +7,7 @@ from .serializers import BuyerSerializer, SellerSerializer, DriverSerializer
 class BuyerCreateView(generics.CreateAPIView):
     queryset = Buyer.objects.all()
     serializer_class = BuyerSerializer
+
 class BuyerRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Buyer.objects.all()
     serializer_class = BuyerSerializer 
@@ -16,15 +17,20 @@ class BuyerRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class SellerCreateView(generics.CreateAPIView):
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
+
+
 class SellerRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer 
     lookup_field = "pk"
 
+
+
 # Create Driver views here
 class DriverCreateView(generics.CreateAPIView):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
+
 class DriverRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer 

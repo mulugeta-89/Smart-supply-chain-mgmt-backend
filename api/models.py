@@ -10,6 +10,7 @@ class Buyer(models.Model):
     address = models.TextField()
     registration_date = models.DateTimeField(auto_now_add=True)
     payment_method = models.CharField(max_length=100)
+    profile_image = models.ImageField(upload_to='buyers/profile_images/', null=True, blank=True)
     rating_value = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
 
     # Specifying table for Buyer Model
@@ -30,6 +31,7 @@ class Seller(models.Model):
     registration_date = models.DateTimeField(auto_now_add=True)
     account_number = models.CharField(max_length=50)
     rating_value = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+    profile_image = models.ImageField(upload_to='sellers/profile_images/', null=True, blank=True)
     tax_number = models.CharField(max_length=100)
 
     # Specifying table for Seller Model
@@ -51,6 +53,7 @@ class Driver(models.Model):
     account_number = models.CharField(max_length=50)
     rating_value = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     license_number = models.CharField(max_length=100)
+    profile_image = models.ImageField(upload_to='drivers/profile_images/', null=True, blank=True)
     car_model = models.CharField(max_length=100)
 
     # Specifying table for Driver Model

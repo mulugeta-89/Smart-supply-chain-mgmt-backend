@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import make_password
 # Create Buyer serializer
 class BuyerSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True) # Hide password during responses
+    profile_image = serializers.ImageField(required=False)
     
     # Perform password Hashing when saved to the database
     def create(self, validated_data):
@@ -19,7 +20,8 @@ class BuyerSerializer(serializers.ModelSerializer):
 # Create Seller serializer
 class SellerSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True) # Hide password during responses
-    
+    profile_image = serializers.ImageField(required=False)
+
     # Perform password Hashing when saved to the database
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data.get("password"))
@@ -32,7 +34,8 @@ class SellerSerializer(serializers.ModelSerializer):
 # Create Driver serializer
 class DriverSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True) # Hide password during responses
-    
+    profile_image = serializers.ImageField(required=False)
+
     # Perform password Hashing when saved to the database
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data.get("password"))
@@ -40,4 +43,4 @@ class DriverSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Driver
-        fields = "__all__" 
+        fields = "__all__"
