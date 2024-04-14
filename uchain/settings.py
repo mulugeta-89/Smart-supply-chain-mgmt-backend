@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "api",
-    "rest_framework"
+    "rest_framework",
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -105,6 +106,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Keep ModelBackend as fallback
+]
+AUTH_USER_MODEL = 'api.Buyer'
+AUTH_USER_MODEL = 'api.Seller'
+AUTH_USER_MODEL = 'api.Driver'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -130,3 +137,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        # Add other authentication classes here if needed
+    ),
+}

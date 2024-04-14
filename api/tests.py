@@ -6,16 +6,19 @@ from .models import Buyer, Seller, Driver
 from .serializers import BuyerSerializer, SellerSerializer, DriverSerializer
 from datetime import datetime
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.base import ContentFile
+import base64
 import os
 class BuyerCreateRetrieveUpdateDestroyViewTest(APITestCase):
     def setUp(self):
 
-        self.buyer = Buyer.objects.create(username="testuser", password="testpassword", full_name="Test User", phone_number="1234567890", address="123 Test St", payment_method="Credit Card")
-        # profile_image=SimpleUploadedFile("profile.jpg", b"file_content", content_type="image/jpeg")
+        self.buyer = Buyer.objects.create(username="testuser", password="testpassword", full_name="Test User", phone_number="1234567890", address="123 Test St", payment_method="Credit Card", profile_image=SimpleUploadedFile("test_image1.jpg", open("media/buyers/profile_images/27401789449_97c3fa3d99_c.jpg", "rb").read(), content_type="image/jpeg"))
 
-        self.seller = Seller.objects.create(username="sample_user", password="sample_password", full_name="Sample Seller", phone_number="1234567890", address="123 Sample St", registration_date=datetime.now(), account_number="123456789", rating_value=4.5, tax_number="ABC123456")
 
-        self.driver = Driver.objects.create(username="sample_user", password="sample_password", full_name="Sample Seller", phone_number="1234567890", address="123 Sample St", registration_date=datetime.now(), account_number="123456789", rating_value=4.5, license_number="ABC123456", car_model="Toyota Camry")
+        self.seller = Seller.objects.create(username="sample_user", password="sample_password", full_name="Sample Seller", phone_number="1234567890", address="123 Sample St", registration_date=datetime.now(), account_number="123456789", rating_value=4.5, tax_number="ABC123456", profile_image=SimpleUploadedFile("test_image2.jpg", open("media/buyers/profile_images/27401789449_97c3fa3d99_c.jpg", "rb").read(), content_type="image/jpeg"))
+
+
+        self.driver = Driver.objects.create(username="sample_user", password="sample_password", full_name="Sample Seller", phone_number="1234567890", address="123 Sample St", registration_date=datetime.now(), account_number="123456789", rating_value=4.5, license_number="ABC123456", car_model="Toyota Camry", profile_image=SimpleUploadedFile("test_image3.jpg", open("media/buyers/profile_images/27401789449_97c3fa3d99_c.jpg", "rb").read(), content_type="image/jpeg"))
 
 
     def test_create_buyer(self):
@@ -27,21 +30,12 @@ class BuyerCreateRetrieveUpdateDestroyViewTest(APITestCase):
             "address": "123 Test St",
             "payment_method": "Credit Card"
         }
-        path = "test_image.jpg"
-        if(os.path.exists(path)):
-            print("Exists")
-        else:
-            print('##############################################################')
-         # Load test cover image
-        # sample["profile_image"] = SimpleUploadedFile("test_image.jpg", open("test_image.jpg", "rb").read(), content_type="image/jpeg")
+        sample["profile_image"] = SimpleUploadedFile("test_image.jpg", open("media/buyers/profile_images/27401789449_97c3fa3d99_c.jpg", "rb").read(), content_type="image/jpeg")
         url = reverse("buyer-create-view")
         response = self.client.post(url, sample, format="multipart")
-
-        print("**************************************")
-        print(response.data)
-        print('***************************************')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Buyer.objects.count(), 2)
+
     def test_retrieve_buyer(self):
         buyer = Buyer.objects.create(username="testuser", password="testpassword", full_name="Test User", phone_number="1234567890", address="123 Test St", payment_method="Credit Card")
         url = reverse("buyer-update-destroy-view", kwargs={"pk": buyer.pk})
