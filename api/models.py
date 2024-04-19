@@ -29,4 +29,12 @@ class SellerProfile(BaseProfile):
 class DriverProfile(BaseProfile):
     license_number = models.CharField(max_length=100)
     car_model = models.CharField(max_length=100)
- 
+
+class Product(models.Model):
+    seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE)  # Define the relationship
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
+    quantity = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='Products/', null=True, blank=True)
+    product_type = models.CharField(max_length=200)

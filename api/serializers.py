@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile
+from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product
 from django.contrib.auth.hashers import make_password
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,18 +24,14 @@ class DriverProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = DriverProfile
         fields = ['user', 'license_number', "car_model"]  # Include fields from DriverProfile
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'description', 'price', 'quantity',"product_type", 'image']
+        read_only_fields = ['seller']  # Exclude 'seller' from writable fields
 
-
-
-# from rest_framework import serializers
-# from .models import Product
-
-# class ProductSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Product
-#         fields = ['id', 'name', 'description', 'price', 'quantity', 'product_type', 'image']
-#         read_only_fields = ['seller']  # Exclude 'seller' from writable fields
-
-#     def create(self, validated_data):
-#         validated_data['seller'] = self.context['request'].user
-#         return super().create(validated_data)
+    def create(self, validated_data):
+        # Getting authenticated user's profile
+        seller_profile = self.context['request'].user.sellerprofile
+        validated_data['seller'] = seller_profile
+        return super().create(validated_data)
