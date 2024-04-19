@@ -1,10 +1,14 @@
 from rest_framework import serializers
 from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile
-
+from django.contrib.auth.hashers import make_password
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'phone_number', 'is_buyer', 'is_seller', 'is_driver', "address", "rating_value", "registration_date", "payment_method", "account_number", "profile_image"]
+        fields = ['id', 'username', "password", 'email', 'phone_number', 'is_buyer', 'is_seller', 'is_driver', "address", "rating_value", "registration_date", "payment_method", "account_number", "profile_image"]
+    # Perform password Hashing when saved to the database
+    def create(self, validated_data):
+        validated_data["password"] = make_password(validated_data.get("password"))
+        return super().create(validated_data)
 
 class BuyerProfileSerializer(serializers.ModelSerializer):
     class Meta:
