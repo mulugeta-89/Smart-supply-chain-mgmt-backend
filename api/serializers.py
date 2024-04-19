@@ -1,46 +1,37 @@
 from rest_framework import serializers
-from .models import Buyer, Seller, Driver
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth import authenticate
+from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile
 
-# Create Buyer serializer
-class BuyerSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True) # Hide password during responses
-    profile_image = serializers.ImageField(required=False)
-        
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Buyer
-        fields = ['username', "password", 'email', 'first_name', 'last_name', "profile_image", 'phone_number', 'address', 'registration_date','payment_method', 'rating_value']
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'phone_number', 'is_buyer', 'is_seller', 'is_driver', "address", "rating_value", "registration_date", "payment_method", "account_number", "profile_image"]
 
-    # Perform password Hashing when saved to the database
-    def create(self, validated_data):
-        validated_data["password"] = make_password(validated_data.get("password"))
-        return super().create(validated_data)
-
-# Create Seller serializer
-class SellerSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True) # Hide password during responses
-    profile_image = serializers.ImageField(required=False)
-
-    # Perform password Hashing when saved to the database
-    def create(self, validated_data):
-        validated_data["password"] = make_password(validated_data.get("password"))
-        return super().create(validated_data)
-    
+class BuyerProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Seller
-        fields = ["username", "password", 'email', 'first_name', 'last_name', "phone_number", "address", "registration_date", "profile_image", "account_number", "rating_value", "tax_number"]
+        model = BuyerProfile
+        fields = ['user']  # Include fields from BuyerProfile
 
-# Create Driver serializer
-class DriverSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True) # Hide password during responses
-    profile_image = serializers.ImageField(required=False)
-
-    # Perform password Hashing when saved to the database
-    def create(self, validated_data):
-        validated_data["password"] = make_password(validated_data.get("password"))
-        return super().create(validated_data)
-    
+class SellerProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Driver
-        fields = ["username", "password", 'email', 'first_name', 'last_name', "phone_number", "address", "registration_date", "profile_image", "account_number", "rating_value", "license_number", "car_model"]
+        model = SellerProfile
+        fields = ['user', "tax_number"]  # Include fields from SellerProfile
+
+class DriverProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DriverProfile
+        fields = ['user', 'license_number', "car_model"]  # Include fields from DriverProfile
+
+
+
+# from rest_framework import serializers
+# from .models import Product
+
+# class ProductSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Product
+#         fields = ['id', 'name', 'description', 'price', 'quantity', 'product_type', 'image']
+#         read_only_fields = ['seller']  # Exclude 'seller' from writable fields
+
+#     def create(self, validated_data):
+#         validated_data['seller'] = self.context['request'].user
+#         return super().create(validated_data)

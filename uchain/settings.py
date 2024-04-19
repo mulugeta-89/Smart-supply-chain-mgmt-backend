@@ -109,10 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep ModelBackend as fallback
 ]
-AUTH_USER_MODEL = 'api.Buyer'
-AUTH_USER_MODEL = 'api.Seller'
-AUTH_USER_MODEL = 'api.Driver'
-
+AUTH_USER_MODEL = 'api.CustomUser'
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 

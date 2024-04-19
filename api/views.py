@@ -1,86 +1,63 @@
-from django.shortcuts import render
-from rest_framework.authtoken.models import Token
-from rest_framework import generics, status
-from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.response import Response
-from .models import Buyer, Seller, Driver
-from django.contrib.auth import authenticate, logout
-from .serializers import BuyerSerializer, SellerSerializer, DriverSerializer
-from rest_framework.authentication import TokenAuthentication
-# Create Buyer views here.
-class BuyerCreateView(generics.CreateAPIView):
-    queryset = Buyer.objects.all()
-    serializer_class = BuyerSerializer
+from rest_framework.views import APIView
+from .serializers import CustomUserSerializer
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import CustomUser, BuyerProfile
+from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer
 
-class BuyerRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Buyer.objects.all()
-    serializer_class = BuyerSerializer 
-    lookup_field = "pk"
-class BuyerLoginView(APIView):
+class BuyerCreateView(APIView):
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
+        user_serializer = CustomUserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user_instance = user_serializer.save()
+            
+            # Create a buyer profile associated with the new user
+            buyer_data = {'user': user_instance.id}
+            buyer_serializer = BuyerProfileSerializer(data=buyer_data)
+            if buyer_serializer.is_valid():
+                buyer_serializer.save()
+                return Response({'message': 'Buyer created successfully.'}, status=status.HTTP_201_CREATED)
+            else:
+                # Rollback user creation if buyer profile creation fails
+                user_instance.delete()
+                return Response(buyer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if username is None and password is None:
-            return Response({"error": "Please provide both username and password"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        user = authenticate(username=username, password=password)
-        print(user)
-        if not user:
-            return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
-
-# Create Seller views here
-class SellerCreateView(generics.CreateAPIView):
-    queryset = Seller.objects.all()
-    serializer_class = SellerSerializer
-
-
-class SellerRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Seller.objects.all()
-    serializer_class = SellerSerializer 
-    lookup_field = "pk"
-class SellerLoginView(APIView):
+class SellerCreateView(APIView):
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
+        user_serializer = CustomUserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user_instance = user_serializer.save()
+            
+            # Create a seller profile associated with the new user
+            seller_data = {'user': user_instance.id, "tax_number": request.data.get("tax_number")}
+            seller_serializer = SellerProfileSerializer(data=seller_data)
+            if seller_serializer.is_valid():
+                seller_serializer.save()
+                return Response({'message': 'Seller created successfully.'}, status=status.HTTP_201_CREATED)
+            else:
+                # Rollback user creation if seller profile creation fails
+                user_instance.delete()
+                return Response(seller_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if username is None and password is None:
-            return Response({"error": "Please provide both username and password"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        user = authenticate(username=username, password=password)
-        if not user:
-            return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
-
-# Create Driver views here
-class DriverCreateView(generics.CreateAPIView):
-    queryset = Driver.objects.all()
-    serializer_class = DriverSerializer
-
-class DriverRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Driver.objects.all()
-    serializer_class = DriverSerializer 
-    lookup_field = "pk"
-
-class DriverLoginView(APIView):
+class DriverCreateView(APIView):
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-
-        if username is None and password is None:
-            return Response({"error": "Please provide both username and password"}, status=status.HTTP_400_BAD_REQUEST)
-        print(username, password)
-        user = authenticate(username=username, password=password)
-        if not user:
-            return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
-# Implement logout view for all users
-class LogoutView(APIView):
-    def post(self, request):
-        logout(request)
-
-        return Response({"message": "Logout succesfull"}, status=status.HTTP_200_OK)
+        user_serializer = CustomUserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user_instance = user_serializer.save()
+            
+            # Create a driver profile associated with the new user
+            driver_data = {'user': user_instance.id, 'license_number': request.data.get('license_number'), "car_model": request.data.get("car_model")}
+            driver_serializer = DriverProfileSerializer(data=driver_data)
+            if driver_serializer.is_valid():
+                driver_serializer.save()
+                return Response({'message': 'Driver created successfully.'}, status=status.HTTP_201_CREATED)
+            else:
+                # Rollback user creation if driver profile creation fails
+                user_instance.delete()
+                return Response(driver_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
