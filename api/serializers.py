@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product
+from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order
 from django.contrib.auth.hashers import make_password
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,3 +35,29 @@ class ProductSerializer(serializers.ModelSerializer):
         seller_profile = self.context['request'].user.sellerprofile
         validated_data['seller'] = seller_profile
         return super().create(validated_data)
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    quantity = serializers.CharField()
+    status = serializers.CharField()
+    order_date = serializers.DateTimeField()
+    product = ProductSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Order
+        fields = ["id", "quantity", "status", "order_date", "product"]
+        read_only_fields = ["buyer"]
+    
+    def create(self, validated_data):  #create method
+        products = self.initial_data['product']
+        validated_data["buyer"] = self.context['request'].user.buyerprofile
+        productInstances = []
+        
+        for product in products:
+            productInstances.append(Product.objects.get(pk = product['id']))
+        order = Order.objects.create(**validated_data)
+        order.product.set(productInstances)
+        return order
+    
+  

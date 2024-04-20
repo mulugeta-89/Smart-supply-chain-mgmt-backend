@@ -38,3 +38,18 @@ class Product(models.Model):
     quantity = models.CharField(max_length=100)
     image = models.ImageField(upload_to='Products/', null=True, blank=True)
     product_type = models.CharField(max_length=200)
+
+class Order(models.Model):
+    buyer = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE)
+    PENDING = "Pending"
+    SHIPPED = "Shipped"
+    DELIVERED = "Delivered"
+    STATUS_CHOICES = [
+        (PENDING, 'Pending'),
+        (SHIPPED, 'Shipped'),
+        (DELIVERED, 'Delivered')
+    ]
+    quantity = models.CharField(max_length=100)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    order_date = models.DateTimeField(auto_now_add=True)
+    product = models.ManyToManyField(Product)
