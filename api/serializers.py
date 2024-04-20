@@ -35,13 +35,11 @@ class ProductSerializer(serializers.ModelSerializer):
         seller_profile = self.context['request'].user.sellerprofile
         validated_data['seller'] = seller_profile
         return super().create(validated_data)
-
-
 class OrderSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     quantity = serializers.CharField()
-    status = serializers.CharField()
-    order_date = serializers.DateTimeField()
+    status = serializers.CharField(required=False)
+    order_date = serializers.DateTimeField(required=False)
     product = ProductSerializer(read_only=True, many=True)
 
     class Meta:
