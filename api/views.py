@@ -109,6 +109,9 @@ class SendMessageAPIView(APIView):
 class InboxAPIView(APIView):
     def get(self, request):
         # Get all messages where the current user is the recipient
-        messages = Message.objects.filter(recipient=request.user)
+        messages = Message.objects.filter(receiver=request.user)
         serializer = MessageSerializer(messages, many=True)
+        for message in messages:
+            message.is_read = True
+            message.save()
         return Response(serializer.data)
