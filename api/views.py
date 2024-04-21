@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import CustomUserSerializer
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -76,19 +77,62 @@ class DriverCreateView(APIView):
                 return Response(driver_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ProductListCreateView(generics.ListCreateAPIView):
+class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(seller=self.request.user.sellerprofile)
-    
-    # GET method to list all products
+class ProductListView(APIView):
     def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
+        queryset = Product.objects.all()  # Define queryset here
+        serializer = ProductSerializer(queryset, many=True)  # Use serializer class
         return Response(serializer.data)
+class ProductRetrieveView(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = "pk"
+
+class ProductUpdateView(generics.UpdateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = "pk"
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the requesting user is authenticated
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be authenticated to update this product.")
+
+        # Check if the requesting user is the seller of the product
+        if instance.seller_id != request.user.id:
+            raise PermissionDenied("You are not authorized to update this product.")
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+class ProductDestroyView(generics.DestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = "pk"
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the requesting user is authenticated
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be authenticated to delete this product.")
+
+        # Check if the requesting user is the seller of the product
+        if instance.seller_id != request.user.id:
+            raise PermissionDenied("You are not authorized to delete this product.")
+
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
 class OrderCreateView(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
