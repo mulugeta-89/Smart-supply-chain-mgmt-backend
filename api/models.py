@@ -1,13 +1,13 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class CustomUser(AbstractUser):
     # Add fields common to all user types
     phone_number = models.CharField(max_length=15)
     address = models.CharField(max_length=200)
     registration_date = models.DateTimeField(auto_now_add=True)
-    rating_value = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     payment_method = models.CharField(max_length=100)
     account_number = models.CharField(max_length=50)
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
@@ -67,3 +67,11 @@ class Message(models.Model):
 
     def __str__(self):
         return f"From {self.sender} to {self.reciever} - {self.timestamp}"
+
+class Rating(models.Model):
+    rating_value = models.DecimalField(max_digits=3, decimal_places=2, default=0.00, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    comment = models.TextField()
+    timestamp = models.DateTimeField(default=timezone.now)
+    sender = models.ForeignKey(CustomUser, related_name="sent_ratings",on_delete=models.CASCADE)
+    receiver = models.ForeignKey(CustomUser, related_name="received_ratings", on_delete=models.CASCADE)
+

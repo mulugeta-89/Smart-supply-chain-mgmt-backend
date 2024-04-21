@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from .models import CustomUser, BuyerProfile, Product, Order, Message
 from django.contrib.auth import authenticate
-from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer
+from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer, RatingSerializer
 
 class BuyerCreateView(APIView):
     def post(self, request):
@@ -115,3 +115,12 @@ class InboxAPIView(APIView):
             message.is_read = True
             message.save()
         return Response(serializer.data)
+class SendRatingAPIView(APIView):
+    def post(self, request):
+        request.data['sender'] = request.user
+        serializer = RatingSerializer(data=request.data)
+        if serializer.is_valid():
+            # Assuming sender is the current authenticated user
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

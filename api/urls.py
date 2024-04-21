@@ -10,8 +10,9 @@ urlpatterns = [
     path("user/login", views.UserLoginView.as_view(), name="user-login-view"),
     path("product/create", views.ProductListCreateView.as_view(), name="product-list-create-view"),
     path("order/create", views.OrderCreateView.as_view(), name="order-create-api-view"),
-    path('send/', views.SendMessageAPIView.as_view(), name='send_message'),
-    path('inbox/', views.InboxAPIView.as_view(), name='inbox'),
+    path('send/', views.SendMessageAPIView.as_view(), name='send-message-api-view'),
+    path('inbox/', views.InboxAPIView.as_view(), name='inbox-api-view'),
+    path('rate/', views.SendRatingAPIView.as_view(), name='send-message-api-view'),
     # path("product/create", views.ProductCreateView.as_view(), name="product-create-view"),
     # path("product/<int:pk>", views..as_view(), name="driver-update-destroy-view"),
 ]
