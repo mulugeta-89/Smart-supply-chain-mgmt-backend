@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
@@ -52,4 +53,17 @@ class Order(models.Model):
     quantity = models.CharField(max_length=100)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
     order_date = models.DateTimeField(auto_now_add=True)
+
     product = models.ManyToManyField(Product)
+class Message(models.Model):
+    sender = models.ForeignKey(CustomUser, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(CustomUser, related_name='received_messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"From {self.sender} to {self.reciever} - {self.timestamp}"

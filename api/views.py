@@ -6,9 +6,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .models import CustomUser, BuyerProfile, Product, Order
+from .models import CustomUser, BuyerProfile, Product, Order, Message
 from django.contrib.auth import authenticate
-from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer
+from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer
 
 class BuyerCreateView(APIView):
     def post(self, request):
@@ -96,4 +96,19 @@ class OrderCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(buyer=self.request.user.buyerprofile)
-    
+class SendMessageAPIView(APIView):
+    def post(self, request):
+        request.data['sender'] = request.user
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
+            # Assuming sender is the current authenticated user
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class InboxAPIView(APIView):
+    def get(self, request):
+        # Get all messages where the current user is the recipient
+        messages = Message.objects.filter(recipient=request.user)
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data)

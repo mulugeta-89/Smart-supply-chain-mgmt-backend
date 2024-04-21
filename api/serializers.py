@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order
+from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order, Message
 from django.contrib.auth.hashers import make_password
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,5 +57,11 @@ class OrderSerializer(serializers.ModelSerializer):
         order = Order.objects.create(**validated_data)
         order.product.set(productInstances)
         return order
-    
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.SlugRelatedField(many=False, slug_field='username', queryset=CustomUser.objects.all())
+    receiver = serializers.SlugRelatedField(many=False, slug_field='username', queryset=CustomUser.objects.all())
+
+    class Meta:
+        model = Message
+        fields = ["id",'sender', 'receiver', 'content', 'timestamp',"is_read"]
   
