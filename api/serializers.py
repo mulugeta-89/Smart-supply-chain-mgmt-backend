@@ -68,7 +68,7 @@ class MessageSerializer(serializers.ModelSerializer):
 class RatingSerializer(serializers.ModelSerializer):
     sender = serializers.SlugRelatedField(many=False, slug_field='username', queryset=CustomUser.objects.all())
     receiver = serializers.SlugRelatedField(many=False, slug_field='username', queryset=CustomUser.objects.all())
-
+    order = serializers.PrimaryKeyRelatedField(many=False, queryset=Order.objects.all())
     class Meta:
         model = Rating
-        fields = ["id",'sender', 'receiver', 'rating_value', 'timestamp',"comment"]
+        fields = ["id",'sender', 'receiver', 'rating_value', 'timestamp',"comment", "order"]

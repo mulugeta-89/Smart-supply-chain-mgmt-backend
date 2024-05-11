@@ -76,3 +76,4 @@ class Rating(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     sender = models.ForeignKey(CustomUser, related_name="sent_ratings",on_delete=models.CASCADE)
     receiver = models.ForeignKey(CustomUser, related_name="received_ratings", on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, related_name="ratings", on_delete=models.CASCADE)

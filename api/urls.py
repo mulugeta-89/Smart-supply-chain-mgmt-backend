@@ -24,8 +24,8 @@ urlpatterns = [
     path('rate/<int:pk>/destroy', views.RatingDestroyAPIView.as_view(), name='destroy-rating-api-view'),
 
     # endpoints related to product
-    path("product/create", views.ProductCreateView.as_view(), name="product-create-view"),
     path("products", views.ProductListView.as_view(), name="product-list-create-view"),
+    path("product/create", views.ProductCreateView.as_view(), name="product-create-view"),
     path("product/<int:pk>", views.ProductRetrieveView.as_view(), name="product-retrieve-view"),
     path("product/<int:pk>/update", views.ProductUpdateView.as_view(), name="product-update-view"),
     path("product/<int:pk>/destroy", views.ProductDestroyView.as_view(), name="product-destroy-view")
