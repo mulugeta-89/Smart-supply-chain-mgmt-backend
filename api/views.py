@@ -91,6 +91,7 @@ class ProductListView(APIView):
         queryset = Product.objects.all()  # Define queryset here
         serializer = ProductSerializer(queryset, many=True)  # Use serializer class
         return Response(serializer.data)
+
 class ProductRetrieveView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -199,7 +200,7 @@ class InboxAPIView(APIView):
             message.is_read = True
             message.save()
         return Response(serializer.data)
-class SendRatingAPIView(APIView):
+class RatingSendAPIView(APIView):
     def post(self, request):
         request.data['sender'] = request.user
         serializer = RatingSerializer(data=request.data)
@@ -208,6 +209,14 @@ class SendRatingAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class RatingListView(generics.ListAPIView):
+    serializer_class = RatingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Rating.objects.filter(receiver=user)
+        return queryset
 class RatingUpdateAPIView(generics.UpdateAPIView):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
