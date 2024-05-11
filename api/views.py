@@ -9,10 +9,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from .models import CustomUser, BuyerProfile, Product, Order, Message, Rating
 from django.contrib.auth import authenticate
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer, RatingSerializer
 
+# View to create a buyer user
 class BuyerCreateView(APIView):
     def post(self, request):
         user_serializer = CustomUserSerializer(data=request.data)
@@ -30,6 +29,8 @@ class BuyerCreateView(APIView):
                 user_instance.delete()
                 return Response(buyer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# View for Login a user
 class UserLoginView(APIView):
     def post(self, request):
         username = request.data.get("username")
@@ -43,6 +44,8 @@ class UserLoginView(APIView):
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         token, created = Token.objects.get_or_create(user=user)
         return Response({"login": "successful", "token": token.key}, status=status.HTTP_201_CREATED)
+
+# View to create a seller user
 class SellerCreateView(APIView):
     def post(self, request):
         user_serializer = CustomUserSerializer(data=request.data)
@@ -61,6 +64,7 @@ class SellerCreateView(APIView):
                 return Response(seller_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# View to create a driver user
 class DriverCreateView(APIView):
     def post(self, request):
         user_serializer = CustomUserSerializer(data=request.data)
@@ -79,6 +83,7 @@ class DriverCreateView(APIView):
                 return Response(driver_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# view to create a Product
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -86,17 +91,21 @@ class ProductCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(seller=self.request.user.sellerprofile)
+
+# view to list products
 class ProductListView(APIView):
     def get(self, request, *args, **kwargs):
-        queryset = Product.objects.all()  # Define queryset here
-        serializer = ProductSerializer(queryset, many=True)  # Use serializer class
+        queryset = Product.objects.all()
+        serializer = ProductSerializer(queryset, many=True)
         return Response(serializer.data)
-
+    
+# view to list a specific product
 class ProductRetrieveView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = "pk"
 
+# view to update a specific product
 class ProductUpdateView(generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -117,6 +126,8 @@ class ProductUpdateView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
+# view to destroy a product
 class ProductDestroyView(generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -136,6 +147,7 @@ class ProductDestroyView(generics.DestroyAPIView):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+# view to create a view
 class OrderCreateView(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -143,6 +155,8 @@ class OrderCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(buyer=self.request.user.buyerprofile)
+
+# view to send a message
 class SendMessageAPIView(APIView):
     def post(self, request):
         request.data['sender'] = request.user
@@ -152,6 +166,8 @@ class SendMessageAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# view to update a message
 class MessageUpdateView(generics.UpdateAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
@@ -172,6 +188,8 @@ class MessageUpdateView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
+# view to destroy a message
 class MessageDestroyView(generics.DestroyAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
@@ -190,7 +208,8 @@ class MessageDestroyView(generics.DestroyAPIView):
 
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
+# view to see all messages to a user inbox
 class InboxAPIView(APIView):
     def get(self, request):
         # Get all messages where the current user is the recipient
@@ -200,6 +219,8 @@ class InboxAPIView(APIView):
             message.is_read = True
             message.save()
         return Response(serializer.data)
+
+# view to send a rating to other user
 class RatingSendAPIView(APIView):
     def post(self, request):
         request.data['sender'] = request.user
@@ -209,6 +230,8 @@ class RatingSendAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# view to list all rating related to a reciever
 class RatingListView(generics.ListAPIView):
     serializer_class = RatingSerializer
     permission_classes = [IsAuthenticated]
@@ -217,6 +240,8 @@ class RatingListView(generics.ListAPIView):
         user = self.request.user
         queryset = Rating.objects.filter(receiver=user)
         return queryset
+
+# view to update a rating
 class RatingUpdateAPIView(generics.UpdateAPIView):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
@@ -237,6 +262,8 @@ class RatingUpdateAPIView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
+# view to destroy a rating
 class RatingDestroyAPIView(generics.DestroyAPIView):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer

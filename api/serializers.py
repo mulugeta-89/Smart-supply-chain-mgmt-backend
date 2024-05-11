@@ -1,29 +1,37 @@
 from rest_framework import serializers
 from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order, Message, Rating
 from django.contrib.auth.hashers import make_password
+
+# Base User Serializer to register a user
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'username', "password", 'email', 'phone_number', 'is_buyer', 'is_seller', 'is_driver', "address", "registration_date", "payment_method", "account_number", "profile_image"]
+
     # Perform password Hashing when saved to the database
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data.get("password"))
         return super().create(validated_data)
 
+# Serializer for Buyer Profile
 class BuyerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = BuyerProfile
         fields = ['user']  # Include fields from BuyerProfile
 
+# Serializer for Seller Profile
 class SellerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SellerProfile
         fields = ['user', "tax_number"]  # Include fields from SellerProfile
 
+# Serializer for Driver Profile
 class DriverProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = DriverProfile
         fields = ['user', 'license_number', "car_model"]  # Include fields from DriverProfile
+
+# Serializer for Product
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -35,6 +43,8 @@ class ProductSerializer(serializers.ModelSerializer):
         seller_profile = self.context['request'].user.sellerprofile
         validated_data['seller'] = seller_profile
         return super().create(validated_data)
+    
+# serializer for Order
 class OrderSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     quantity = serializers.CharField()
@@ -48,7 +58,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ["id", "quantity", "status", "order_date", "product", "driver"]
         read_only_fields = ["buyer"]
     
-    def create(self, validated_data):  # create method
+    def create(self, validated_data): 
         products = self.initial_data['product']
         validated_data["buyer"] = self.context['request'].user.buyerprofile
         productInstances = []
@@ -58,6 +68,8 @@ class OrderSerializer(serializers.ModelSerializer):
         order = Order.objects.create(**validated_data)
         order.product.set(productInstances)
         return order
+
+# Serializer for Message
 class MessageSerializer(serializers.ModelSerializer):
     sender = serializers.SlugRelatedField(many=False, slug_field='username', queryset=CustomUser.objects.all())
     receiver = serializers.SlugRelatedField(many=False, slug_field='username', queryset=CustomUser.objects.all())
@@ -65,6 +77,8 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ["id",'sender', 'receiver', 'content', 'timestamp',"is_read"]
+
+# serializer for Rating
 class RatingSerializer(serializers.ModelSerializer):
     sender = serializers.SlugRelatedField(many=False, slug_field='username', queryset=CustomUser.objects.all())
     receiver = serializers.SlugRelatedField(many=False, slug_field='username', queryset=CustomUser.objects.all())
