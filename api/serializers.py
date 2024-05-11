@@ -41,13 +41,14 @@ class OrderSerializer(serializers.ModelSerializer):
     status = serializers.CharField(required=False)
     order_date = serializers.DateTimeField(required=False)
     product = ProductSerializer(read_only=True, many=True)
+    driver = serializers.PrimaryKeyRelatedField(queryset=DriverProfile.objects.all(), required=True)
 
     class Meta:
         model = Order
-        fields = ["id", "quantity", "status", "order_date", "product"]
+        fields = ["id", "quantity", "status", "order_date", "product", "driver"]
         read_only_fields = ["buyer"]
     
-    def create(self, validated_data):  #create method
+    def create(self, validated_data):  # create method
         products = self.initial_data['product']
         validated_data["buyer"] = self.context['request'].user.buyerprofile
         productInstances = []

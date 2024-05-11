@@ -42,6 +42,8 @@ class Product(models.Model):
 
 class Order(models.Model):
     buyer = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE)
+    driver = models.ForeignKey(DriverProfile, on_delete=models.SET_NULL, null=True, blank=True)
+
     PENDING = "Pending"
     SHIPPED = "Shipped"
     DELIVERED = "Delivered"
@@ -74,4 +76,3 @@ class Rating(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     sender = models.ForeignKey(CustomUser, related_name="sent_ratings",on_delete=models.CASCADE)
     receiver = models.ForeignKey(CustomUser, related_name="received_ratings", on_delete=models.CASCADE)
-

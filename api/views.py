@@ -9,6 +9,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from .models import CustomUser, BuyerProfile, Product, Order, Message
 from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer, RatingSerializer
 
 class BuyerCreateView(APIView):
@@ -149,7 +151,26 @@ class SendMessageAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class MessageUpdateView(generics.UpdateAPIView):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    lookup_field = "pk"
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the requesting user is authenticated
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be authenticated to update this message.")
+
+        # Check if the requesting user is the seller of the message
+        if instance.sender_id != request.user.id:
+            raise PermissionDenied("You are not authorized to update this message")
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 class InboxAPIView(APIView):
     def get(self, request):
         # Get all messages where the current user is the recipient
