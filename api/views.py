@@ -7,7 +7,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .models import CustomUser, BuyerProfile, Product, Order, Message
+from .models import CustomUser, BuyerProfile, Product, Order, Message, Rating
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -183,7 +183,7 @@ class MessageDestroyView(generics.DestroyAPIView):
         if not request.user.is_authenticated:
             raise PermissionDenied("You must be authenticated to delete this message.")
 
-        # Check if the requesting user is the seller of the message
+        # Check if the requesting user is the sender of the message
         if instance.sender_id != request.user.id:
             raise PermissionDenied("You are not authorized to delete this message.")
 
@@ -208,3 +208,41 @@ class SendRatingAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class RatingUpdateAPIView(generics.UpdateAPIView):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
+    lookup_field = "pk"
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the requesting user is authenticated
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be authenticated to update this rating.")
+
+        # Check if the requesting user is the sender of the rating
+        if instance.sender_id != request.user.id:
+            raise PermissionDenied("You are not authorized to update this rating")
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+class RatingDestroyAPIView(generics.DestroyAPIView):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
+    lookup_field = "pk"
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the requesting user is authenticated
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be authenticated to delete this rating.")
+
+        # Check if the requesting user is the sender of the rating
+        if instance.sender_id != request.user.id:
+            raise PermissionDenied("You are not authorized to delete this rating.")
+
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
