@@ -16,7 +16,8 @@ urlpatterns = [
     path('send/', views.SendMessageAPIView.as_view(), name='send-message-api-view'),
     path('inbox/', views.InboxAPIView.as_view(), name='inbox-api-view'),
     path("message/<int:pk>/update", views.MessageUpdateView.as_view(), name="message-update-view"),
-
+    path("message/<int:pk>/destroy", views.MessageDestroyView.as_view(), name="message-destroy-view"),
+    
     # endpoint related to rating
     path('rate/', views.SendRatingAPIView.as_view(), name='send-message-api-view'),
 

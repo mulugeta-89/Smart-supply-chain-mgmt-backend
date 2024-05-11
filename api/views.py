@@ -171,6 +171,25 @@ class MessageUpdateView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+class MessageDestroyView(generics.DestroyAPIView):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    lookup_field = "pk"
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the requesting user is authenticated
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be authenticated to delete this message.")
+
+        # Check if the requesting user is the seller of the message
+        if instance.sender_id != request.user.id:
+            raise PermissionDenied("You are not authorized to delete this message.")
+
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
 class InboxAPIView(APIView):
     def get(self, request):
         # Get all messages where the current user is the recipient
