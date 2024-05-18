@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "api",
     "rest_framework",
     'rest_framework.authtoken'
+
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware'
+
 ]
 
 ROOT_URLCONF = "uchain.urls"
@@ -81,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'uchain',
         'USER': 'root',
-        'PASSWORD': 'Mulu2835',
+        'PASSWORD': '',
         'HOST': 'localhost',   # Or the hostname where your MySQL server is running
         'PORT': '3306',        # MySQL default port is 3306
     }
@@ -108,6 +112,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep ModelBackend as fallback
+]
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:4200',
 ]
 AUTH_USER_MODEL = 'api.CustomUser'
 # Internationalization

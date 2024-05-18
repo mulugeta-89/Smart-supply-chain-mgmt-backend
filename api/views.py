@@ -32,6 +32,7 @@ class BuyerCreateView(APIView):
 
 # View for Login a user
 class UserLoginView(APIView):
+    
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -40,10 +41,11 @@ class UserLoginView(APIView):
             return Response({"error": "Please provide both username and password"}, status=status.HTTP_400_BAD_REQUEST)
         
         user = authenticate(username=username, password=password)
+        user_serializer = CustomUserSerializer(user)
         if not user:
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         token, created = Token.objects.get_or_create(user=user)
-        return Response({"login": "successful", "token": token.key}, status=status.HTTP_201_CREATED)
+        return Response({"status": "successful", "token": token.key, "user": user_serializer.data}, status=status.HTTP_201_CREATED)
 
 # View to create a seller user
 class SellerCreateView(APIView):
