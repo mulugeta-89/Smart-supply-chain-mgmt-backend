@@ -8,6 +8,9 @@ urlpatterns = [
     path("seller/register", views.SellerCreateView.as_view(), name="seller-create-view"),
     path("driver/register", views.DriverCreateView.as_view(), name="driver-create-view"),
     path("user/login", views.UserLoginView.as_view(), name="user-login-view"),
+    path("user/<int:pk>", views.UserRetrieveView.as_view(), name="user-retrieve-view"),
+    path("seller/<int:pk>", views.SellerRetrieveView.as_view(), name="seller-retrieve-view"),
+    path("driver/<int:pk>", views.DriverRetrieveView.as_view(), name="driver-retrieve-view"),
 
     # Endpoints related to order
     path("order/create", views.OrderCreateView.as_view(), name="order-create-api-view"),

@@ -7,7 +7,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .models import CustomUser, BuyerProfile, Product, Order, Message, Rating
+from .models import CustomUser, BuyerProfile, DriverProfile, Product, Order, Message, Rating, SellerProfile
 from django.contrib.auth import authenticate
 from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer, RatingSerializer
 
@@ -46,6 +46,24 @@ class UserLoginView(APIView):
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         token, created = Token.objects.get_or_create(user=user)
         return Response({"status": "successful", "token": token.key, "user": user_serializer.data}, status=status.HTTP_201_CREATED)
+
+# view to list a specific user
+class UserRetrieveView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    lookup_field = "pk"
+
+# view to list a specific seller
+class SellerRetrieveView(generics.RetrieveAPIView):
+    queryset = SellerProfile.objects.all()
+    serializer_class = SellerProfileSerializer
+    lookup_field = "pk"
+
+# view to list a specific driver
+class DriverRetrieveView(generics.RetrieveAPIView):
+    queryset = DriverProfile.objects.all()
+    serializer_class = DriverProfileSerializer
+    lookup_field = "pk"
 
 # View to create a seller user
 class SellerCreateView(APIView):
