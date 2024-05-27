@@ -21,6 +21,10 @@ urlpatterns = [
     path("message/<int:pk>/update", views.MessageUpdateView.as_view(), name="message-update-view"),
     path("message/<int:pk>/destroy", views.MessageDestroyView.as_view(), name="message-destroy-view"),
 
+    #Endpoints related to payment
+    path('pay/', views.Payment.as_view(), name='pay'),
+    path('verify/', views.PaymentVerify.as_view(), name='verify'),
+
     # Endpoint related to rating
     path('ratings/', views.RatingListView.as_view(), name='rating-list-view'),
     path('rate/', views.RatingSendAPIView.as_view(), name='send-rating-api-view'),

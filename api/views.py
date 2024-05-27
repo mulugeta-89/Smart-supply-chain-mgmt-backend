@@ -10,7 +10,11 @@ from rest_framework.response import Response
 from .models import CustomUser, BuyerProfile, DriverProfile, Product, Order, Message, Rating, SellerProfile
 from django.contrib.auth import authenticate
 from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer, RatingSerializer
+from chapa import Chapa
+from datetime import datetime
 
+# Replace 'your_secret_key' with your actual Chapa secret key
+chapa = Chapa('CHASECK_TEST-YPSr0j8iNMFJg2a1SsN9exvQJq6CkoHM')
 # View to create a buyer user
 class BuyerCreateView(APIView):
     def post(self, request):
@@ -186,7 +190,29 @@ class SendMessageAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
+class Payment(APIView):
+    def post(self, request):
+        # Get the current date and time
+        now = datetime.now()
+        # Format the date and time
+        tx_ref = 'tx_uchainappsmartsupplychainmanagementpaytxref' + now.strftime("%Y%m%d%H%M%S")
+        response = chapa.initialize(
+            email=request.data['email'],
+            amount=request.data['amount'],
+            first_name=request.data['first_name'],
+            last_name=request.data['last_name'],
+            tx_ref=tx_ref,
+            callback_url="https://yourcallback.url/here"
+        )
+        data = {'response': response, 'tx_ref': tx_ref}
+        return Response(data, status=status.HTTP_201_CREATED)
+    
+class PaymentVerify(APIView):
+    def post(self,request):
+        verification_response = chapa.verify(request.data['tx_ref'])
+        return Response(verification_response, ststaus=status.HTTP_200_OK)
+    
 # view to update a message
 class MessageUpdateView(generics.UpdateAPIView):
     queryset = Message.objects.all()
