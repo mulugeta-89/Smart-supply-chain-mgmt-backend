@@ -40,6 +40,7 @@ class Product(models.Model):
     seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     description = models.TextField()
+    location = models.TextField()
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     quantity = models.CharField(max_length=100)
     image = models.ImageField(upload_to='Products/', null=True, blank=True)

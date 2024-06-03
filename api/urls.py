@@ -11,6 +11,9 @@ urlpatterns = [
 
     # Endpoints related to order
     path("order/create", views.OrderCreateView.as_view(), name="order-create-api-view"),
+    path("orders", views.OrderListView.as_view(), name="order-list-view"),
+    path("order/<int:pk>", views.OrderRetrieveView.as_view(), name="order-retrieve-view"),
+
 
     # Endpoint related to messages
     path('send/', views.SendMessageAPIView.as_view(), name='send-message-api-view'),

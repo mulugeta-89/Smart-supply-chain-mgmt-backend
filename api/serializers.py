@@ -3,16 +3,6 @@ from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Prod
 from django.contrib.auth.hashers import make_password
 
 # Base User Serializer to register a user
-class CustomUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'username', "password", 'email', 'phone_number', 'is_buyer', 'is_seller', 'is_driver', "address", "registration_date", "payment_method", "account_number", "profile_image"]
-
-    # Perform password Hashing when saved to the database
-    def create(self, validated_data):
-        validated_data["password"] = make_password(validated_data.get("password"))
-        return super().create(validated_data)
-
 # Serializer for Buyer Profile
 class BuyerProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,13 +20,25 @@ class DriverProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = DriverProfile
         fields = ['user', 'license_number', "car_model"]  # Include fields from DriverProfile
+class CustomUserSerializer(serializers.ModelSerializer):
+    buyer_profile = BuyerProfileSerializer(source='buyerprofile', read_only=True)
+    seller_profile = SellerProfileSerializer(source='sellerprofile', read_only=True)
+    driver_profile = DriverProfileSerializer(source='driverprofile', read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', "password", 'email', 'phone_number', 'is_buyer', 'is_seller', 'is_driver', "address", "registration_date", "payment_method", "account_number", "profile_image", "buyer_profile", "seller_profile", "driver_profile"]
+
+    # Perform password Hashing when saved to the database
+    def create(self, validated_data):
+        validated_data["password"] = make_password(validated_data.get("password"))
+        return super().create(validated_data)
+
 
 # Serializer for Product
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'price', 'quantity',"product_type", 'image']
-        read_only_fields = ['seller']  # Exclude 'seller' from writable fields
+        fields = ['id', 'name', 'description',"location","seller", 'price', 'quantity',"product_type", 'image']
 
     def create(self, validated_data):
         # Getting authenticated user's profile
@@ -55,8 +57,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["id", "quantity", "status", "order_date", "product", "driver"]
-        read_only_fields = ["buyer"]
+        fields = ["id", "quantity", "status", "order_date", "product", "driver", "buyer"]
+        # read_only_fields = ["buyer"]
     
     def create(self, validated_data): 
         products = self.initial_data['product']
