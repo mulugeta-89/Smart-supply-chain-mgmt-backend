@@ -8,6 +8,7 @@ urlpatterns = [
     path("seller/register", views.SellerCreateView.as_view(), name="seller-create-view"),
     path("driver/register", views.DriverCreateView.as_view(), name="driver-create-view"),
     path("user/login", views.UserLoginView.as_view(), name="user-login-view"),
+    path("user/<int:pk>", views.UserRetrieveView.as_view(), name="user-retrieve-view"),
 
     # Endpoints related to order
     path("order/create", views.OrderCreateView.as_view(), name="order-create-api-view"),
@@ -20,6 +21,7 @@ urlpatterns = [
     path('inbox/', views.InboxAPIView.as_view(), name='inbox-api-view'),
     path("message/<int:pk>/update", views.MessageUpdateView.as_view(), name="message-update-view"),
     path("message/<int:pk>/destroy", views.MessageDestroyView.as_view(), name="message-destroy-view"),
+    path("message/<int:pk>", views.MessageRetrieveView.as_view(), name="message-retrieve-view"),
 
     # Endpoint related to rating
     path('ratings/', views.RatingListView.as_view(), name='rating-list-view'),

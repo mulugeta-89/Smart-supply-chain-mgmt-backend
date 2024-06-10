@@ -83,6 +83,12 @@ class DriverCreateView(APIView):
                 return Response(driver_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# view to get user by Id
+class UserRetrieveView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    lookup_field = "pk"
+
 # view to create a Product
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
@@ -221,6 +227,12 @@ class MessageDestroyView(generics.DestroyAPIView):
 
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+# view to get Message by Id
+class MessageRetrieveView(generics.RetrieveAPIView):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    lookup_field = "pk"
 
 # view to see all messages to a user inbox
 class InboxAPIView(APIView):
